@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>门派介绍 - 一梦江湖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* 透明导航条 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: transparent;
+            z-index: 1000;
+            padding: 20px 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-link:hover {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.2);
+        }
+        
+        .nav-link.active {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.15);
+        }
+        
+        /* 登录按钮 */
+        .login-btn {
+            background-color: rgba(96, 165, 250, 0.3);
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            padding: 8px 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(96, 165, 250, 0.5);
+        }
+    
+        /* 门派容器 */
+        .sects-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* 单个门派竖条 */
+        .sect {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        /* 门派背景遮罩 */
+        .sect-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom, 
+                rgba(0, 0, 0, 0.05) 0%, 
+                rgba(0, 0, 0, 0.15) 50%,
+                rgba(0, 0, 0, 0.25) 100%
+            );
+            transition: all 0.5s ease;
+            z-index: 1;
+        }
+        
+        /* 默认状态下的标题 */
+        .sect-title-default {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            padding: 0 10px;
+        }
+        
+        /* 激活状态下的详细内容 */
+        .sect-content {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 80%;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+            text-align: center;
+            pointer-events: none;
+        }
+        
+        /* 激活状态下的标题 */
+        .sect-title-active {
+            font-size: 60px;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+            letter-spacing: 2px;
+        }
+        
+        /* 门派诗句 */
+        .sect-poem {
+            font-size: 21px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+            font-style: italic;
+        }
+        
+        /* 门派信息 */
+        .sect-info {
+            font-size: 18px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* 难度星星 */
+        .difficulty {
+            color: #FFD700;
+            font-size: 18px;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+        
+        /* 激活状态 - 竖条放大 */
+        .sect.active {
+            flex: 4;
+        }
+        
+        /* 激活时遮罩 */
+        .sect.active .sect-overlay {
+            background: linear-gradient(
+                to bottom, 
+                rgba(0, 0, 0, 0.1) 0%, 
+                rgba(0, 0, 0, 0.2) 50%,
+                rgba(0, 0, 0, 0.35) 100%
+            );
+        }
+        
+        /* 激活时默认标题消失 */
+        .sect.active .sect-title-default {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        /* 激活时详细内容出现 */
+        .sect.active .sect-content {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .sects-container {
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .sect {
+                flex: 0 0 25%;
+                height: 300px;
+            }
+            
+            .sect.active {
+                flex: 0 0 50%;
+                height: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .nav-link {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            
+            .sect {
+                flex: 0 0 50%;
+                height: 250px;
+            }
+            
+            .sect.active {
+                flex: 0 0 100%;
+                height: 350px;
+            }
+            
+            .sect-title-active {
+                font-size: 40px;
+            }
+            
+            .sect-poem {
+                font-size: 18px;
+            }
+            
+            .sect-title-default {
+                font-size: 20px;
+                bottom: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            
+            .sect {
+                flex: 0 0 100%;
+                height: 200px;
+            }
+            
+            .sect.active {
+                height: 300px;
+            }
+            
+            .sect-title-active {
+                font-size: 32px;
+            }
+            
+            .sect-poem {
+                font-size: 16px;
+            }
+            
+            .sect-title-default {
+                font-size: 18px;
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 透明导航条 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">网易大神</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="menpai.html" class="nav-link active">门派介绍</a>
+                <a href="activity.html" class="nav-link">活动工坊</a>
+                <a href="community.html" class="nav-link">一梦社区</a>
+                <a href="cangbaoge.html" class="nav-link">藏宝阁</a>
+                <a href="login.html" class="nav-link login-btn">登录</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 门派容器 -->
+    <div class="sects-container">
+        <!-- 武当 -->
+        <div class="sect" data-index="0" style="background-image: url('./img/wudang.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">武当</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">武当</h2>
+                <p class="sect-poem">不昧本来，太虚明月流辉过。<br>抱元独坐，云去无心，大道无我</p>
+                <p class="sect-info">门派定位：远程-输出</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️⭐️⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 云梦 -->
+        <div class="sect" data-index="1" style="background-image: url('./img/yunmeng.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">云梦</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">云梦</h2>
+                <p class="sect-poem">世界能几何，红颜一春树，流年一掷梭。<br>朝骑鸾凤到碧落，暮见沧海生白波</p>
+                <p class="sect-info">门派定位：远程-回复</p>
+                <p class="sect-info difficulty">操作难度：⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 少林 -->
+        <div class="sect" data-index="2" style="background-image: url('./img/shaolin.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">少林</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">少林</h2>
+                <p class="sect-poem">金屑眼中醫，衣珠法上尘。<br>参悟不破，地狱难空，愿庇世上人</p>
+                <p class="sect-info">门派定位：近战-肉盾</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 沧海 -->
+        <div class="sect" data-index="3" style="background-image: url('./img/canhai.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">沧海</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">沧海</h2>
+                <p class="sect-poem">千年梦兮一俯仰，新曲难兮旧时腔。<br>问摇光兮何以往，步沧海兮笑痴常</p>
+                <p class="sect-info">门派定位：远程-团队</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 伽蓝 -->
+        <div class="sect" data-index="4" style="background-image: url('./img/jielan.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">伽蓝</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">伽蓝</h2>
+                <p class="sect-poem">淋漓枯骨尽梵音，刃舞折枷堕尘心。<br>冷冷泪血扬戈起，不复往生孤愿泯</p>
+                <p class="sect-info">门派定位：中程-均衡</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️⭐️⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 太阴 -->
+        <div class="sect" data-index="5" style="background-image: url('./img/taiying.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">太阴</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">太阴</h2>
+                <p class="sect-poem">鬼火青荧灼碧血，谁裁新纸欲招魂?<br>但使苍生能悯我，何必钦钦乞灵神</p>
+                <p class="sect-info">门派定位：远程-均衡</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 大巫 -->
+        <div class="sect" data-index="6" style="background-image: url('./img/dawu.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">大巫</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">大巫</h2>
+                <p class="sect-poem">登大坟以远望兮，聊以舒吾忧心。<br>哀州土之平乐兮，悲江介之遗风</p>
+                <p class="sect-info">门派定位：远程-输出</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️⭐️⭐️</p>
+            </div>
+        </div>
+        
+        <!-- 关山 -->
+        <div class="sect" data-index="7" style="background-image: url('./img/guanshan.jpg')">
+            <div class="sect-overlay"></div>
+            <div class="sect-title-default">关山</div>
+            <div class="sect-content">
+                <h2 class="sect-title-active">关山</h2>
+                <p class="sect-poem">更吹羌笛关山月，无那金闺万里愁</p>
+                <p class="sect-info">门派定位：近战-输出</p>
+                <p class="sect-info difficulty">操作难度：⭐️⭐️⭐️⭐️</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sects = document.querySelectorAll('.sect');
+            
+            // 门派点击事件
+            sects.forEach(sect => {
+                sect.addEventListener('click', () => {
+                    const isActive = sect.classList.contains('active');
+                    
+                    // 移除所有门派的激活状态
+                    sects.forEach(s => s.classList.remove('active'));
+                    
+                    // 如果点击的不是当前激活的，则激活它
+                    if (!isActive) {
+                        sect.classList.add('active');
+                    }
+                });
+            });
+            
+            // 点击页面其他区域关闭激活的门派
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.sect') && !e.target.closest('.navbar')) {
+                    sects.forEach(sect => sect.classList.remove('active'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

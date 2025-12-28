@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网易游戏页面</title>
+    <!-- 引入外部CSS文件 -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="cards-container">
+            <!-- 登录卡片 -->
+            <div class="card" id="login-card">
+                <h2 class="main-title">今时明月曾为古来<br>群侠照夜</h2>
+                <p class="sub-title">西风古道今日亦有小友走过</p>
+                <img src="./img/bj9.jpg" alt="思源" class="card-img" id="login-img">
+                <button class="btn login-btn" id="show-login-form">江湖</button>
+            </div>
+            
+            <!-- 注册卡片 -->
+            <div class="card" id="register-card">
+                <h2 class="main-title">行人如织客如流<br>幸甚有你</h2>
+                <p class="sub-title">山在、水在、明月在、侠情便在</p>
+                <img src="./img/bj8.jpg" alt="思源" class="card-img" id="register-img">
+                <button class="btn register-btn" id="show-register-form">一梦</button>
+            </div>
+        </div>
+        
+        <!-- 登录表单卡片 -->
+        <div class="form-card" id="login-form-card">
+            <h2 class="form-title">登录</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" placeholder="请输入用户名" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="form-btn">登录</button>
+            </form>
+            <div class="form-switch">
+                还没有账户？ <a id="switch-to-register">立即注册</a>
+            </div>
+        </div>
+        
+        <!-- 注册表单卡片 -->
+        <div class="form-card" id="register-form-card">
+            <h2 class="form-title">注册</h2>
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="register-username">用户名</label>
+                    <input type="text" id="register-username" placeholder="请输入用户名" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" placeholder="请输入密码" required>
+                </div>
+                <div class="input-group">
+                    <label for="confirm-password">确认密码</label>
+                    <input type="password" id="confirm-password" placeholder="请再次输入密码" required>
+                </div>
+                <button type="submit" class="form-btn">注册</button>
+            </form>
+            <div class="form-switch">
+                已有账户？ <a id="switch-to-login">立即登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="watermark">一梦江湖八周年</div>
+
+    <!-- 引入外部JS文件（放在body最后，确保DOM加载完成） -->
+    <script src="./js/index.js"></script>
+</body>
+</html>

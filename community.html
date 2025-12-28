@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一梦江湖 - 社区弹幕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            background: url('./img/bj6.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        /* 完全透明导航条 - 与门派介绍页面一致 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: transparent;
+            z-index: 1000;
+            padding: 20px 0;
+            border-bottom: none;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-link:hover {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.2);
+        }
+        
+        .nav-link.active {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.15);
+        }
+        
+        /* 登录按钮特殊样式 - 与门派介绍页面相同 */
+        .login-btn {
+            background-color: rgba(96, 165, 250, 0.3);
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            padding: 8px 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        /* 页面标题 - 减少顶部内边距，让内容更靠上 */
+        .page-header {
+            text-align: center;
+            padding: 80px 20px 40px; /* 减少顶部和底部内边距 */
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-title {
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            letter-spacing: 1px;
+        }
+        
+        .page-subtitle {
+            font-size: 18px;
+            color: #fff3e0;
+            max-width: 600px;
+            margin: 0 auto;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* 弹幕容器 - 覆盖整个屏幕，但内容可以滚动 */
+        .danmu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        /* 单个弹幕项 - 有多种动画效果 */
+        .danmu-item {
+            position: absolute;
+            white-space: nowrap;
+            font-size: 22px; /* 增大弹幕字体 */
+            font-weight: 500;
+            opacity: 0;
+            pointer-events: none;
+            user-select: none;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* 弹幕类型1：滚动弹幕 */
+        .danmu-type-scroll {
+            animation: danmu-scroll linear forwards;
+        }
+        
+        @keyframes danmu-scroll {
+            0% {
+                transform: translateX(100vw);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+        }
+        
+        /* 弹幕类型2：渐入渐出 */
+        .danmu-type-fade {
+            animation: danmu-fade ease-in-out forwards;
+        }
+        
+        @keyframes danmu-fade {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+        
+        /* 弹幕类型3：打字机效果 */
+        .danmu-type-typewriter {
+            overflow: hidden;
+            border-right: 2px solid transparent;
+            animation: typing 3s steps(30, end), blink-caret .75s step-end 4;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #ff7043; }
+        }
+        
+        /* 内容区域 - 秋天红枫叶浅色系到黄色渐变背景 */
+        .content-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto 30px; /* 减少底部边距，让内容更靠上 */
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(255, 248, 225, 0.9) 0%, rgba(255, 236, 179, 0.9) 50%, rgba(255, 215, 140, 0.9) 100%);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 204, 128, 0.6);
+            z-index: 2;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            color: #5d4037; /* 秋天深棕色文字 */
+        }
+        
+        .content-container h2 {
+            color: #bf360c;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-container p {
+            color: #5d4037;
+            line-height: 1.6;
+        }
+        
+        /* 评论发布区域 */
+        .comment-box {
+            background: linear-gradient(135deg, rgba(255, 243, 224, 0.9) 0%, rgba(255, 229, 172, 0.9) 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 204, 128, 0.8);
+        }
+        
+        .comment-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #bf360c;
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 183, 77, 0.8);
+            border-radius: 8px;
+            color: #5d4037;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: #ff7043;
+            box-shadow: 0 0 0 2px rgba(255, 112, 67, 0.2);
+        }
+        
+        .comment-input::placeholder {
+            color: rgba(93, 64, 55, 0.5);
+        }
+        
+        .send-btn {
+            background: linear-gradient(45deg, #ff7043, #ff5722);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 112, 67, 0.4);
+        }
+        
+        /* 弹幕控制面板 - 秋天色系背景 */
+        .control-panel {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, rgba(255, 248, 225, 0.85) 0%, rgba(255, 236, 179, 0.85) 100%);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 204, 128, 0.6);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 183, 77, 0.8);
+            color: #5d4037;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 112, 67, 0.2);
+            transform: translateY(-2px);
+            border-color: #ff7043;
+        }
+        
+        /* 弹幕颜色样式 - 调整为秋天色系 */
+        .color-red { color: #ff5722; }       /* 深红 */
+        .color-orange { color: #ff9800; }    /* 橙色 */
+        .color-yellow { color: #ffb300; }    /* 金黄色 */
+        .color-brown { color: #8d6e63; }     /* 棕色 */
+        .color-burnt { color: #ff7043; }     /* 烧橙色 */
+        .color-amber { color: #ff8f00; }     /* 琥珀色 */
+        
+        /* 弹幕大小样式 - 增大字体大小 */
+        .size-small { font-size: 18px; }     /* 从14px增大到18px */
+        .size-normal { font-size: 24px; }    /* 从18px增大到24px */
+        .size-large { font-size: 30px; }     /* 从24px增大到30px */
+        
+        /* 确保弹幕不会出现在背景图片上方 */
+        .danmu-item {
+            max-height: 80vh; /* 限制弹幕最大高度，避免与底部背景重叠 */
+        }
+        
+        /* 社区说明样式 */
+        .community-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 243, 224, 0.8) 0%, rgba(255, 229, 172, 0.8) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 204, 128, 0.8);
+        }
+        
+        .community-note h4 {
+            color: #bf360c;
+            margin-bottom: 10px;
+        }
+        
+        .community-note ul {
+            margin-top: 10px;
+            padding-left: 20px;
+            color: #5d4037;
+        }
+        
+        .community-note li {
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .page-header {
+                padding: 70px 20px 30px; /* 移动端也调整间距 */
+            }
+            
+            .content-container {
+                padding: 20px;
+                margin: 0 auto 20px; /* 移动端也调整边距 */
+            }
+            
+            .control-panel {
+                bottom: 20px;
+                right: 20px;
+                flex-direction: column;
+            }
+            
+            .danmu-item {
+                font-size: 18px; /* 移动端保持适当大小 */
+            }
+            
+            /* 弹幕大小样式 - 移动端调整 */
+            .size-small { font-size: 16px; }
+            .size-normal { font-size: 20px; }
+            .size-large { font-size: 24px; }
+            
+            /* 导航条响应式调整 */
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .nav-link {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 28px;
+            }
+            
+            .page-header {
+                padding: 60px 15px 20px; /* 进一步调整移动端的间距 */
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            
+            .control-panel {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px;
+            }
+            
+            .control-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .danmu-item {
+                font-size: 16px; /* 超小屏幕调整 */
+            }
+            
+            /* 弹幕大小样式 - 超小屏幕调整 */
+            .size-small { font-size: 14px; }
+            .size-normal { font-size: 18px; }
+            .size-large { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航条 - 与门派介绍页面完全一致 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">网易大神</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="menpai.html" class="nav-link">门派介绍</a>
+                <a href="activity.html" class="nav-link">活动工坊</a>
+                <a href="community.html" class="nav-link active">一梦社区</a>
+                <a href="cangbaoge.html" class="nav-link">藏宝阁</a>
+                <a href="login.html" class="nav-link login-btn">登录</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 页面标题 -->
+    <header class="page-header">
+        <h1 class="page-title">一梦社区 · 江湖闲话</h1>
+        <p class="page-subtitle">江湖轶事，侠客心声，皆在此处汇聚。发布你的江湖见闻，与其他侠客互动交流。</p>
+    </header>
+    
+    <!-- 弹幕容器 -->
+    <div class="danmu-container" id="danmuContainer"></div>
+    
+    <!-- 内容区域 -->
+    <div class="content-container">
+        <h2>社区动态</h2>
+        <p>欢迎来到一梦江湖社区！这里是侠客们交流心得、分享瓜帖的地方。</p>
+        
+        <!-- 评论发布区域 -->
+        <div class="comment-box">
+            <h3 class="comment-title">发布你的江湖见闻</h3>
+            <textarea class="comment-input" id="commentInput" placeholder="分享你的江湖故事、游戏心得或有趣见闻..."></textarea>
+            <button class="send-btn" id="sendBtn">发布弹幕</button>
+        </div>
+        
+        <!-- 说明文字 -->
+        <div class="community-note">
+            <h4>社区说明</h4>
+            <ul>
+                <li>弹幕会以动画形式在屏幕上移动</li>
+                <li>可以发送文字弹幕与全服玩家互动</li>
+                <li>支持多种颜色和动画效果</li>
+                <li>下方控制面板可以调整弹幕设置</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 弹幕控制面板 -->
+    <div class="control-panel">
+        <button class="control-btn" id="pauseBtn">暂停/播放</button>
+        <button class="control-btn" id="clearBtn">清空弹幕</button>
+        <button class="control-btn" id="speedBtn">加速</button>
+        <button class="control-btn" id="opacityBtn">透明度</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 获取DOM元素
+            const danmuContainer = document.getElementById('danmuContainer');
+            const commentInput = document.getElementById('commentInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const speedBtn = document.getElementById('speedBtn');
+            const opacityBtn = document.getElementById('opacityBtn');
+            
+            // 初始化设置
+            let isPaused = false;
+            let animationSpeed = 1;
+            let opacityLevel = 1;
+            
+            // 预定义弹幕数据（模拟已有的社区发言）
+            const presetDanmu = [
+                "今天打副本爆了特技，论人品这一块！",
+                "如今海北天南再度回首谁都不平凡，缘来岁岁年年就已是奇谈",
+                "感觉糊糊的打本氛围是我玩过的mmo类中氛围最好的",
+                "打本又打了3小时我是进来速通的不是来坐牢的",
+                "你不要让别人毁了你的人生，你得把人生掌握在自己手里。这是一梦江湖，拿去玩吧，你得亲手毁了自己的人生",
+                "世界上什么瓜？有没有省流侠！",
+                "你们的恋与江湖是在哪儿下载的？我回去把妈与副本卸了。",
+                "江湖再见，各位侠客保重",
+                "蹲师傅",
+                "天道盟真的是副本里超级牢的了",
+                "[微信红包]你收到一个华山派红包，你无法在任何版本微信中领取，因为华山根本就没钱。",
+                "有时候真想跪下来求自己别玩糊了，后来发现跪着也能玩",
+                "踏月之前两个榜一是真情侣，在一起好几年了，结果去年我再去看女主b站的时候发现分手了，因为男的pc",
+                "正视一下玩家需求好吧，改了一堆什么东西，卡级玩家还活不活了",
+                "卡级副本数值削了吗？一刀砍卡级玩家身上来了，666你*******演都不演了是吧",
+                "求策划优化一下旧衣服吧求求，真的好丑",
+                "声演坊今天什么事情？"
+            ];
+            
+            // 弹幕颜色选项 - 秋天色系
+            const colors = ['color-red', 'color-orange', 'color-yellow', 'color-brown', 'color-burnt', 'color-amber'];
+            
+            // 弹幕大小选项
+            const sizes = ['size-small', 'size-normal', 'size-large'];
+            
+            // 弹幕动画类型
+            const animations = ['danmu-type-scroll', 'danmu-type-fade', 'danmu-type-typewriter'];
+            
+            // 创建弹幕函数
+            function createDanmu(text) {
+                if (!text.trim()) return;
+                
+                // 创建弹幕元素
+                const danmu = document.createElement('div');
+                danmu.className = 'danmu-item';
+                
+                // 随机选择样式
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                const sizeClass = sizes[Math.floor(Math.random() * sizes.length)];
+                const animationClass = animations[Math.floor(Math.random() * animations.length)];
+                
+                // 设置弹幕内容
+                danmu.textContent = text;
+                danmu.classList.add(colorClass, sizeClass, animationClass);
+                
+                // 随机位置 - 限制在屏幕上半部分，避免与底部背景重叠
+                const top = Math.random() * 80 + 5; // 5% 到 85%
+                danmu.style.top = `${top}%`;
+                
+                // 随机动画时长
+                const duration = 8 + Math.random() * 12; // 8-20秒
+                danmu.style.animationDuration = `${duration / animationSpeed}s`;
+                
+                // 设置透明度
+                danmu.style.opacity = opacityLevel;
+                
+                // 添加到容器
+                danmuContainer.appendChild(danmu);
+                
+                // 动画结束后移除元素
+                danmu.addEventListener('animationend', () => {
+                    danmu.remove();
+                });
+            }
+            
+            // 发送弹幕
+            function sendDanmu() {
+                const text = commentInput.value.trim();
+                if (text) {
+                    createDanmu(text);
+                    commentInput.value = '';
+                    
+                    // 模拟其他玩家回复（可选）
+                    setTimeout(() => {
+                        if (Math.random() > 0.7) { // 30%概率有回复
+                            const replies = [
+                                "哈哈，我也遇到过",
+                                "真的吗？我也想去看看",
+                                "恭喜恭喜！",
+                                "同感+1",
+                                "有图吗？想看看"
+                            ];
+                            createDanmu(replies[Math.floor(Math.random() * replies.length)]);
+                        }
+                    }, 2000);
+                }
+            }
+            
+            // 初始化预设弹幕
+            function initPresetDanmu() {
+                // 先创建几个初始弹幕
+                presetDanmu.forEach((text, index) => {
+                    setTimeout(() => {
+                        createDanmu(text);
+                    }, index * 1500); // 每隔1.5秒创建一个
+                });
+                
+                // 持续生成随机弹幕
+                setInterval(() => {
+                    if (!isPaused && Math.random() > 0.5) { // 50%概率生成新弹幕
+                        const randomText = presetDanmu[Math.floor(Math.random() * presetDanmu.length)];
+                        createDanmu(randomText);
+                    }
+                }, 3000);
+            }
+            
+            // 控制功能
+            pauseBtn.addEventListener('click', () => {
+                isPaused = !isPaused;
+                const danmus = document.querySelectorAll('.danmu-item');
+                danmus.forEach(danmu => {
+                    if (isPaused) {
+                        danmu.style.animationPlayState = 'paused';
+                        pauseBtn.textContent = '播放';
+                    } else {
+                        danmu.style.animationPlayState = 'running';
+                        pauseBtn.textContent = '暂停';
+                    }
+                });
+            });
+            
+            clearBtn.addEventListener('click', () => {
+                const danmus = document.querySelectorAll('.danmu-item');
+                danmus.forEach(danmu => danmu.remove());
+            });
+            
+            speedBtn.addEventListener('click', () => {
+                animationSpeed = animationSpeed === 1 ? 1.5 : animationSpeed === 1.5 ? 2 : 1;
+                speedBtn.textContent = `速度x${animationSpeed}`;
+                
+                // 更新所有弹幕速度
+                const danmus = document.querySelectorAll('.danmu-item');
+                danmus.forEach(danmu => {
+                    const currentDuration = parseFloat(danmu.style.animationDuration);
+                    if (currentDuration) {
+                        danmu.style.animationDuration = `${currentDuration / animationSpeed}s`;
+                    }
+                });
+            });
+            
+            opacityBtn.addEventListener('click', () => {
+                opacityLevel = opacityLevel === 1 ? 0.7 : opacityLevel === 0.7 ? 0.4 : 1;
+                opacityBtn.textContent = `透明度${opacityLevel}`;
+                
+                // 更新所有弹幕透明度
+                const danmus = document.querySelectorAll('.danmu-item');
+                danmus.forEach(danmu => {
+                    danmu.style.opacity = opacityLevel;
+                });
+            });
+            
+            // 事件监听
+            sendBtn.addEventListener('click', sendDanmu);
+            commentInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendDanmu();
+                }
+            });
+            
+            // 检查背景图片是否加载成功
+            const backgroundImage = new Image();
+            backgroundImage.onload = function() {
+                console.log('背景图片加载成功');
+            };
+            
+            backgroundImage.onerror = function() {
+                console.log('背景图片加载失败，将显示默认背景色');
+                document.body.style.background = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+            };
+            
+            // 设置背景图片路径
+            backgroundImage.src = './img/bj4.jpg';
+            
+            // 初始化
+            initPresetDanmu();
+            
+            // 添加一些示例弹幕到输入框
+            commentInput.value = "听说这个新游戏很好玩，我要去试试看。";
+        });
+    </script>
+</body>
+</html>

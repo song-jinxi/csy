@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一梦社区 - 网易</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #000;
+        }
+        
+        /* 完全透明导航条 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: transparent;
+            z-index: 1000;
+            padding: 20px 0;
+            border-bottom: none;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-link:hover {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.2);
+        }
+        
+        .nav-link.active {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.15);
+        }
+        
+        /* 登录按钮特殊样式 */
+        .login-btn {
+            background-color: rgba(96, 165, 250, 0.3);
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            padding: 8px 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        /* 声音控制按钮样式 */
+        .sound-control {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sound-control:hover {
+            background-color: rgba(96, 165, 250, 0.7);
+            transform: scale(1.1);
+        }
+        
+        /* 全屏视频容器 */
+        .fullscreen-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .fullscreen-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* 内容区域 - 修改为右侧居中 */
+        .content-container {
+            position: absolute;
+            top: 80px;
+            width: 100%;
+            min-height: calc(100vh - 80px - 120px);
+            padding: 40px 20px;
+            z-index: 1;
+            display: flex;
+            justify-content: flex-end; /* 改为右侧对齐 */
+            align-items: center;
+        }
+        
+        /* 修改欢迎内容样式 - 移除背景色和阴影，文字缩小 */
+        .welcome-content {
+            max-width: 600px; /* 缩小宽度 */
+            background-color: transparent; /* 移除背景色 */
+            padding: 40px; /* 减小内边距 */
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); /* 添加文字阴影，增强可读性 */
+            /* 移除 backdrop-filter 和边框 */
+            margin-right: 2%; /* 从右侧偏移一些 */
+        }
+        
+        .welcome-content h1 {
+            font-size: 36px; /* 缩小字体 */
+            margin-bottom: 15px;
+            color: #ffffff; /* 改为白色 */
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        .welcome-content p {
+            font-size: 18px; /* 缩小字体 */
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.95); /* 提高透明度 */
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px; /* 减小间距 */
+            margin-top: 30px;
+        }
+        
+        .feature-item {
+            background-color: rgba(96, 165, 250, 0.1);
+            padding: 15px; /* 减小内边距 */
+            border-radius: 10px;
+            width: 160px; /* 缩小宽度 */
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px); /* 添加轻微模糊效果 */
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background-color: rgba(96, 165, 250, 0.2);
+        }
+        
+        .feature-item i {
+            font-size: 28px; /* 缩小图标 */
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        
+        .feature-item h3 {
+            color: white;
+            margin-bottom: 8px;
+            font-size: 16px; /* 缩小字体 */
+        }
+        
+        .feature-item p {
+            font-size: 13px; /* 缩小字体 */
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+        
+        /* 完全透明页脚 */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: transparent;
+            padding: 25px 20px;
+            text-align: center;
+            z-index: 2;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .footer-info {
+            font-size: 18px;
+            color: #ffffff;
+            line-height: 1.6;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .footer-info span {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .footer-info span:last-child {
+            margin-bottom: 0;
+        }
+        
+        .footer-copyright {
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .welcome-content {
+                margin-right: 5%;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .content-container {
+                justify-content: center; /* 中等屏幕居中显示 */
+            }
+            
+            .welcome-content {
+                margin-right: 0;
+                max-width: 700px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .nav-link {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            
+            .welcome-content {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .welcome-content h1 {
+                font-size: 28px;
+            }
+            
+            .welcome-content p {
+                font-size: 16px;
+            }
+            
+            .feature-item {
+                width: 140px;
+            }
+            
+            .sound-control {
+                bottom: 110px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .nav-container {
+                padding: 0 20px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            
+            .welcome-content h1 {
+                font-size: 24px;
+            }
+            
+            .welcome-content p {
+                font-size: 15px;
+            }
+            
+            .features {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .feature-item {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .sound-control {
+                bottom: 100px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content-container {
+                top: 100px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 透明导航条 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">网易大神</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">首页</a>
+                <a href="menpai.html" class="nav-link">门派介绍</a>
+                <a href="activity.html" class="nav-link">活动工坊</a>
+                <a href="community.html" class="nav-link">一梦社区</a>
+                <a href="cangbaoge.html" class="nav-link">藏宝阁</a>
+                <a href="login.html" class="nav-link login-btn">登录</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 声音控制按钮 -->
+    <button class="sound-control" id="sound-control">
+        <i class="fas fa-volume-mute"></i>
+    </button>
+    
+    <!-- 全屏视频 -->
+    <div class="fullscreen-video" id="fullscreen-video">
+        <div class="video-overlay"></div>
+        <video id="main-video" autoplay loop muted>
+            <source src="./video/v0.mp4" type="video/mp4">
+            您的浏览器不支持视频标签。
+        </video>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content-container">
+        <div class="welcome-content">
+            <h1>一梦江湖</h1>
+            <p>欢迎来到《一梦江湖》游戏世界！这是一个充满江湖气息的武侠世界，在这里你可以选择不同的门派，学习各种武功，结交江湖好友，体验真实的武侠生活。</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <i class="fas fa-users"></i>
+                    <h3>门派介绍</h3>
+                    <p>了解各门派特色与玩法</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>活动工坊</h3>
+                    <p>参与精彩游戏活动</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-comments"></i>
+                    <h3>一梦社区</h3>
+                    <p>玩家交流互动平台</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-gem"></i>
+                    <h3>藏宝阁</h3>
+                    <p>交易装备与物品</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <span>广东东软学院人工智能学院</span>
+                <span>25计科专升本5班｜陈思源｜25216950509</span>
+                <span>视频原创：网易官方</span>
+                <span>视频来源：微博</span>
+            </div>
+            <div class="footer-copyright">
+                <p>© 2025 游戏社区城 - 网易 | 仅供学习使用</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('main-video');
+            const soundControl = document.getElementById('sound-control');
+            const soundIcon = soundControl.querySelector('i');
+            const currentPage = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let isMuted = true;
+            
+            // 声音控制
+            soundControl.addEventListener('click', () => {
+                if (isMuted) {
+                    video.muted = false;
+                    soundIcon.className = 'fas fa-volume-up';
+                    soundControl.title = '点击静音';
+                    isMuted = false;
+                } else {
+                    video.muted = true;
+                    soundIcon.className = 'fas fa-volume-mute';
+                    soundControl.title = '点击开启声音';
+                    isMuted = true;
+                }
+            });
+            
+            // 尝试播放视频
+            video.play().catch(e => {
+                console.log('视频自动播放被阻止');
+            });
+            
+            // 更新导航条激活状态
+            navLinks.forEach(link => {
+                const linkHref = link.getAttribute('href');
+                if (linkHref === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+                
+                // 首页特殊处理
+                if (currentPage === 'index.html' || currentPage === '') {
+                    if (link.textContent === '首页') {
+                        link.classList.add('active');
+                    } else if (link.textContent !== '登录') {
+                        link.classList.remove('active');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

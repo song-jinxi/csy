@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动工坊 - 一梦社区</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background-color: #0a0a0f; /* 页面背景主色 */
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 背景覆盖 */
+        .page-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./img/bj2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+        }
+        
+        .page-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            z-index: -1;
+        }
+        
+        /* 完全透明导航条 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: transparent;
+            z-index: 1000;
+            padding: 20px 0;
+            border-bottom: none;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+        
+        .nav-link:hover {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.2);
+        }
+        
+        .nav-link.active {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.15);
+        }
+        
+        /* 登录按钮特殊样式 */
+        .login-btn {
+            background-color: rgba(96, 165, 250, 0.3);
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            padding: 8px 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        /* 主内容容器 */
+        .main-content {
+            padding: 120px 40px 60px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* 活动区块通用样式 */
+        .activity-section {
+            margin-bottom: 80px;
+            position: relative;
+        }
+        
+        .activity-container {
+            display: flex;
+            gap: 50px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+        
+        /* 轮播图容器 */
+        .carousel-panel {
+            flex: 1;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 轮播图轨道 */
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        /* 轮播图幻灯片 */
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            box-sizing: border-box;
+        }
+        
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 轮播图按钮 */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .prev-btn {
+            left: 20px;
+        }
+        
+        .next-btn {
+            right: 20px;
+        }
+        
+        /* 轮播图指示器 */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.2);
+        }
+        
+        /* 文字面板 - 核心修改：去掉毛玻璃，匹配背景色 */
+        .text-panel {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* 核心：取背景图的浅青+淡白，低透明度+匹配纹理 */
+            background: rgba(220, 240, 230, 0.25); /* 背景图的浅青底色，25%透明度 */
+            background-image: url('./img/你的荷塘背景图.jpg'); /* 直接用背景图当纹理，和页面背景同源 */
+            background-size: cover;
+            background-blend-mode: overlay; /* 让纹理和底色融合 */
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* 浅白细边框，增强质感 */
+            box-shadow: 
+                0 8px 20px rgba(100, 150, 120, 0.15), /* 淡青阴影，匹配背景色调 */
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        /* 悬停时调整 */
+
+        .text-panel:hover {
+            background: rgba(220, 240, 230, 0.35); /* 悬停时透明度稍高，增强反馈 */
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* 文字样式 */
+        .activity-heading {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(52, 152, 219, 0.2);
+        }
+        
+        .activity-date {
+            font-size: 18px;
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .activity-description {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #f5f5f5;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+        
+        .activity-highlights {
+            list-style-type: none;
+            margin: 15px 0;
+        }
+        
+        .activity-highlights li {
+            font-size: 16px;
+            color: #ffffff;
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .activity-highlights li:before {
+            content: "•";
+            color: #e74c3c;
+            font-size: 24px;
+            position: absolute;
+            left: 0;
+            top: 5px;
+        }
+        
+        .activity-tag {
+            display: inline-block;
+            background: rgba(52, 152, 219, 0.25);
+            color: #a5d8ff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            /* 移除标签的毛玻璃 */
+            /* backdrop-filter: blur(2px); */
+            /* -webkit-backdrop-filter: blur(2px); */
+        }
+        
+        /* 分割线 */
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.7), transparent);
+            margin: 50px 0;
+            width: 100%;
+            /* 移除分割线的毛玻璃 */
+            /* backdrop-filter: blur(1px); */
+            /* -webkit-backdrop-filter: blur(1px); */
+            position: relative;
+        }
+        
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            /* 移除伪元素的毛玻璃 */
+            /* backdrop-filter: blur(1px); */
+            /* -webkit-backdrop-filter: blur(1px); */
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 120px 20px 40px;
+            }
+            
+            .activity-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .carousel-panel {
+                width: 100%;
+                height: 450px;
+            }
+            
+            .text-panel {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .nav-link {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            
+            .activity-heading {
+                font-size: 24px;
+            }
+            
+            .activity-description {
+                font-size: 16px;
+            }
+            
+            .carousel-panel {
+                height: 400px;
+            }
+            
+            .carousel-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            
+            .main-content {
+                padding: 140px 15px 30px;
+            }
+            
+            .carousel-panel {
+                height: 350px;
+            }
+            
+            .text-panel {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面背景 -->
+    <div class="page-background"></div>
+    <div class="page-overlay"></div>
+    
+    <!-- 透明导航条 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">网易大神</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="menpai.html" class="nav-link">门派介绍</a>
+                <a href="activity.html" class="nav-link active">活动工坊</a>
+                <a href="community.html" class="nav-link">一梦社区</a>
+                <a href="cangbaoge.html" class="nav-link">藏宝阁</a>
+                <a href="login.html" class="nav-link login-btn">登录</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <!-- 原始内容 - 江湖论剑 (文字在左，轮播图在右) -->
+        <section class="activity-section">
+            <div class="activity-container">
+                <!-- 文字区域 -->
+                <div class="text-panel">
+                    <h2 class="activity-heading">江湖论剑 <span style="font-size: 20px; color: #e0e0e0;">一梦江湖官方出品</span></h2>
+                    <div class="activity-date">活动查询助手</div>
+                    <p class="activity-description">江湖论剑大赛英雄帖已至！参赛即有奖，更有全服豪华奖池等待全民参赛</p>
+                    
+                    <div class="activity-tag">多重奖励</div>
+                    <ul class="activity-highlights">
+                        <li>冠军队长亲自为全服开启豪华奖池</li>
+                        <li>瓜分千万大奖</li>
+                        <li>稀有称号与头像框</li>
+                        <li>限定时装与坐骑</li>
+                    </ul>
+                    
+                    <p class="activity-description">江湖论剑大赛已开启报名，各路英雄豪杰齐聚一堂，争夺武林至尊宝座。卧龙门第二届、桃花源与侠客行首届论剑大赛即将拉开帷幕。这不仅是一场顶尖高手的巅峰对决，更是一次全侠士共襄盛举的江湖狂欢！</p>
+                </div>
+                
+                <!-- 轮播图区域 -->
+                <div class="carousel-panel" id="original-carousel">
+                    <div class="carousel-track" id="original-track">
+                        <!-- 轮播图1 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record1.jpg" alt="活动记录图1">
+                        </div>
+                        
+                        <!-- 轮播图2 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record2.jpg" alt="活动记录图2">
+                        </div>
+                        
+                        <!-- 轮播图3 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record3.jpg" alt="活动记录图3">
+                        </div>
+                        
+                        <!-- 轮播图4 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record4.jpg" alt="活动记录图4">
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播图按钮 -->
+                    <button class="carousel-btn prev-btn" id="original-prev-btn">‹</button>
+                    <button class="carousel-btn next-btn" id="original-next-btn">›</button>
+                    
+                    <!-- 轮播图指示器 -->
+                    <div class="carousel-indicators" id="original-indicators">
+                        <div class="indicator active" data-index="0"></div>
+                        <div class="indicator" data-index="1"></div>
+                        <div class="indicator" data-index="2"></div>
+                        <div class="indicator" data-index="3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 分割线 -->
+        <div class="section-divider"></div>
+        
+        <!-- 新增活动1: 12月12日更新公告 (轮播图在左，文字在右) -->
+        <section class="activity-section">
+            <div class="activity-container">
+                <!-- 轮播图区域 -->
+                <div class="carousel-panel" id="carousel-1">
+                    <div class="carousel-track" id="track-1">
+                        <!-- 轮播图1 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record5.jpg" alt="12月12日更新公告图1">
+                        </div>
+                        
+                        <!-- 轮播图2 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record6.jpg" alt="12月12日更新公告图2">
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播图按钮 -->
+                    <button class="carousel-btn prev-btn" id="prev-btn-1">‹</button>
+                    <button class="carousel-btn next-btn" id="next-btn-1">›</button>
+                    
+                    <!-- 轮播图指示器 -->
+                    <div class="carousel-indicators" id="indicators-1">
+                        <div class="indicator active" data-index="0"></div>
+                        <div class="indicator" data-index="1"></div>
+                    </div>
+                </div>
+                
+                <!-- 文字区域 -->
+                <div class="text-panel">
+                    <h2 class="activity-heading">12月12日更新公告来袭！</h2>
+                    <div class="activity-date">冬至主题更新</div>
+                    
+                    <div class="activity-tag">祥冬至活动</div>
+                    <p class="activity-description">❄祥冬至活动上线，洛镇浮生记、知味逢友等活动同步上线！</p>
+                    
+                    <div class="activity-tag">全新时装</div>
+                    <p class="activity-description">❄全新时装"风色雪涛"迎冬上线，湖清霜镜晓，涛白雪山来。时装剪裁利落、配饰华丽精细，衣袍间的毛绒以革新材质织就，打造出具有云朵感的柔雾绒效果。融合多层毛发形态与真实毛流，静止时更可见蓬松丰盈、如云似雾的柔软质感。</p>
+                    
+                    <div class="activity-tag">联动活动</div>
+                    <p class="activity-description">一梦江湖X"奈雪的茶"联动遍尝冬日馨香~联动活动将在双服同步上线。联动将以更轻度的联动形式与大家见面，联动所有外观不绝版。</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 分割线 -->
+        <div class="section-divider"></div>
+        
+        <!-- 新增活动2: 十年绘一衣 (文字在左，轮播图在右) -->
+        <section class="activity-section">
+            <div class="activity-container">
+                <!-- 文字区域 -->
+                <div class="text-panel">
+                    <h2 class="activity-heading">一人提一笔，十年绘一衣</h2>
+                    <div class="activity-date">对话《一梦江湖》美术组原画师</div>
+                    
+                    <p class="activity-description">我们即将与少侠们携手同行八载春秋。</p>
+                    <p class="activity-description">值此周年庆之际，我们将为少侠们重磅呈现一套全新制作的、新生登场的新手时装！这套新手时装，由当年绘制新手时装的原画师，横跨十年载梦时光全新重制。在周年庆版本时，只要少侠们登录游戏，就能在邮件中免费领取！</p>
+                    
+                    <div class="activity-tag">周年庆福利</div>
+                    <div class="activity-tag">全新重制</div>
+                    <div class="activity-tag">免费领取</div>
+                    
+                    <p class="activity-description">共同感受江湖不变初心，重温初见时的感动与美好。这套时装不仅是对过去的致敬，更是对未来的期许。</p>
+                </div>
+                
+                <!-- 轮播图区域 -->
+                <div class="carousel-panel" id="carousel-2">
+                    <div class="carousel-track" id="track-2">
+                        <!-- 轮播图1 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record7.jpg" alt="十年绘一衣图1">
+                        </div>
+                        
+                        <!-- 轮播图2 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record8.jpg" alt="十年绘一衣图2">
+                        </div>
+                        
+                        <!-- 轮播图3 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record9.jpg" alt="十年绘一衣图3">
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播图按钮 -->
+                    <button class="carousel-btn prev-btn" id="prev-btn-2">‹</button>
+                    <button class="carousel-btn next-btn" id="next-btn-2">›</button>
+                    
+                    <!-- 轮播图指示器 -->
+                    <div class="carousel-indicators" id="indicators-2">
+                        <div class="indicator active" data-index="0"></div>
+                        <div class="indicator" data-index="1"></div>
+                        <div class="indicator" data-index="2"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 分割线 -->
+        <div class="section-divider"></div>
+        
+        <!-- 新增活动3: 花木兰联动 (轮播图在左，文字在右) -->
+        <section class="activity-section">
+            <div class="activity-container">
+                <!-- 轮播图区域 -->
+                <div class="carousel-panel" id="carousel-3">
+                    <div class="carousel-track" id="track-3">
+                        <!-- 轮播图1 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record10.jpg" alt="花木兰联动图1">
+                        </div>
+                        
+                        <!-- 轮播图2 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record11.jpg" alt="花木兰联动图2">
+                        </div>
+                        
+                        <!-- 轮播图3 -->
+                        <div class="carousel-slide">
+                            <img src="./img/record12.jpg" alt="花木兰联动图3">
+                        </div>
+                    </div>
+                    
+                    <!-- 轮播图按钮 -->
+                    <button class="carousel-btn prev-btn" id="prev-btn-3">‹</button>
+                    <button class="carousel-btn next-btn" id="next-btn-3">›</button>
+                    
+                    <!-- 轮播图指示器 -->
+                    <div class="carousel-indicators" id="indicators-3">
+                        <div class="indicator active" data-index="0"></div>
+                        <div class="indicator" data-index="1"></div>
+                        <div class="indicator" data-index="2"></div>
+                    </div>
+                </div>
+                
+                <!-- 文字区域 -->
+                <div class="text-panel">
+                    <h2 class="activity-heading">坊间奇谈联动系列「花木兰」首发！</h2>
+                    <div class="activity-date">经典传奇再现江湖</div>
+                    
+                    <p class="activity-description">本次"坊间奇谈"联动，我们以《木兰从军》为灵感设计了飒美外观，特邀武英级运动员【孙琳雅】参与花木兰主题剑舞的创编和动捕，以中国武术诠释木兰精神。</p>
+                    
+                    <div class="activity-tag">联动系列</div>
+                    <div class="activity-tag">经典IP</div>
+                    <div class="activity-tag">武术动捕</div>
+                    
+                    <p class="activity-description">此次联动不仅还原了花木兰的英勇气质，更融入了现代审美元素，打造出兼具古典美与时尚感的独特外观。联动活动期间，玩家可体验专属剧情任务，收集联动限定道具，感受巾帼英雄的不凡气概。</p>
+                    
+                    <p class="activity-description">全新设计的联动时装、专属武器皮肤、特殊表情动作等一系列内容，将带领少侠们穿越千年时光，亲身体验"替父从军"的传奇故事。</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // 轮播图初始化函数
+        function initCarousel(carouselId, trackId, prevBtnId, nextBtnId, indicatorsId, totalSlides) {
+            // 获取DOM元素 - 按ID精确查找
+            const track = document.getElementById(trackId);       // 轮播轨道
+            const prevBtn = document.getElementById(prevBtnId);    // 上一个按钮
+            const nextBtn = document.getElementById(nextBtnId);    // 下一个按钮
+            const indicators = document.querySelectorAll(`#${indicatorsId} .indicator`);    // 使用CSS选择器批量获取元素
+            const carouselContainer = document.getElementById(carouselId);   // 获取轮播图容器（用于悬停检测）
+            
+            let currentIndex = 0;// 当前显示的幻灯片索引（状态变量）
+            
+            // 更新轮播图位置
+            function updateCarousel() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                
+                indicators.forEach((indicator, index) => {
+                    if (index === currentIndex) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 上一张
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+                updateCarousel();
+            });
+            
+            // 下一张
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % totalSlides;
+                updateCarousel();
+            });
+            
+            // 指示器点击
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', () => {
+                    currentIndex = parseInt(indicator.getAttribute('data-index'));
+                    updateCarousel();
+                });
+            });
+            
+            // 自动轮播
+            let autoplayInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % totalSlides;
+                updateCarousel();
+            }, 5000);
+            
+            // 鼠标悬停暂停轮播
+            carouselContainer.addEventListener('mouseenter', () => {
+                clearInterval(autoplayInterval);
+            });
+            
+            carouselContainer.addEventListener('mouseleave', () => {
+                autoplayInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % totalSlides;
+                    updateCarousel();
+                }, 5000);
+            });
+            
+            // 键盘控制
+            document.addEventListener('keydown', (e) => {
+                // 检查鼠标是否在轮播图内
+                if (carouselContainer.matches(':hover')) {
+                    if (e.key === 'ArrowLeft') {
+                        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+                        updateCarousel();
+                    } else if (e.key === 'ArrowRight') {
+                        currentIndex = (currentIndex + 1) % totalSlides;
+                        updateCarousel();
+                    }
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化所有轮播图
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化原始轮播图
+            initCarousel('original-carousel', 'original-track', 'original-prev-btn', 'original-next-btn', 'original-indicators', 4);
+            
+            // 初始化新增活动1轮播图
+            initCarousel('carousel-1', 'track-1', 'prev-btn-1', 'next-btn-1', 'indicators-1', 2);
+            
+            // 初始化新增活动2轮播图
+            initCarousel('carousel-2', 'track-2', 'prev-btn-2', 'next-btn-2', 'indicators-2', 3);
+            
+            // 初始化新增活动3轮播图
+            initCarousel('carousel-3', 'track-3', 'prev-btn-3', 'next-btn-3', 'indicators-3', 3);
+            
+            // 导航激活状态
+            const currentPage = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                const linkHref = link.getAttribute('href');
+                if (linkHref === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
